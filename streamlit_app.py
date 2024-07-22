@@ -1,8 +1,8 @@
-import streamlit as st
-import tensorflow as tf
-import numpy as np
-from PIL import Image
-import matplotlib.pyplot as plt
+import streamlit as st # type: ignore
+import tensorflow as tf # type: ignore
+import numpy as np # type: ignore
+from PIL import Image # type: ignore
+import matplotlib.pyplot as plt# type: ignore
 
 # Load the trained model
 model = tf.keras.models.load_model('image_classification_model.h5')
