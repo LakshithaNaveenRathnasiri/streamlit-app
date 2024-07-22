@@ -1,9 +1,14 @@
+import streamlit as st
 import subprocess
 import sys
 
 # Function to install packages
 def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+    except subprocess.CalledProcessError as e:
+        st.error(f"Error installing {package}: {e}")
+        raise
 
 # Install TensorFlow if not already installed
 try:
@@ -12,8 +17,6 @@ except ImportError:
     install("tensorflow")
     import tensorflow as tf
 
-# Continue with the rest of your code
-import streamlit as st
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
