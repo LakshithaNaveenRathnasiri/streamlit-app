@@ -1,8 +1,18 @@
+import subprocess
+
+# List installed packages
+installed_packages = subprocess.check_output(['pip', 'freeze'])
+for package in installed_packages.decode().split('\n'):
+    if package:
+        print(package)
+
 import streamlit as st # type: ignore
 import tensorflow as tf # type: ignore
 import numpy as np # type: ignore
 from PIL import Image # type: ignore
 import matplotlib.pyplot as plt# type: ignore
+
+
 
 # Load the trained model
 model = tf.keras.models.load_model('image_classification_model.h5')
