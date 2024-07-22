@@ -10,13 +10,15 @@ def install(package):
         st.error(f"Error installing {package}: {e}")
         raise
 
-# Install TensorFlow if not already installed
-try:
-    import tensorflow as tf
-except ImportError:
-    install("tensorflow")
-    import tensorflow as tf
+# Install required packages
+for package in ["tensorflow", "matplotlib"]:
+    try:
+        __import__(package)
+    except ImportError:
+        install(package)
+        __import__(package)
 
+import tensorflow as tf
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -24,24 +26,26 @@ import matplotlib.pyplot as plt
 # Load the trained model
 model = tf.keras.models.load_model('image_classification_model.h5')
 
+# Class labels for your model
+class_labels = ["Class 1", "Class 2"]  # Replace with your actual class labels
+
 # Function to preprocess the uploaded image
 def preprocess_image(image):
+    image = image.convert('RGB')  # Convert image to RGB if not already
     image = image.resize((224, 224))  # Resize to 224x224 as expected by MobileNetV2
     image = np.array(image)
-    if image.shape[2] == 4:  # Check for alpha channel and remove it if present
-        image = image[:, :, :3]
     image = tf.keras.applications.mobilenet_v2.preprocess_input(image)
     return np.expand_dims(image, axis=0)
 
 # Function to decode predictions
 def decode_predictions(predictions):
-    decoded = tf.keras.applications.mobilenet_v2.decode_predictions(predictions, top=5)[0]
-    return decoded
+    predicted_class_indices = np.argmax(predictions, axis=1)
+    return [(class_labels[i], predictions[0][i]) for i in predicted_class_indices]
 
 # Function to display a bar chart of predictions
 def plot_predictions(predictions):
-    labels = [label for _, label, _ in predictions]
-    scores = [score for _, _, score in predictions]
+    labels = [label for label, _ in predictions]
+    scores = [score for _, score in predictions]
     fig, ax = plt.subplots()
     ax.barh(labels, scores)
     ax.set_xlabel('Probability')
@@ -77,7 +81,7 @@ if uploaded_file is not None:
     st.success('Done!')
 
     # Display predictions
-    for i, (imagenet_id, label, score) in enumerate(decoded_predictions):
+    for i, (label, score) in enumerate(decoded_predictions):
         st.write(f"{i + 1}: {label} ({score:.2f})")
 
     # Plot predictions
